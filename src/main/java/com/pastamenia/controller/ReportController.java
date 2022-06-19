@@ -36,7 +36,7 @@ public class ReportController {
 
 
   @PostMapping("${app.endpoint.reportsDailySalesSummery}")
-  public ResponseEntity<ListResponseWrapper<DailySalesSummeryReportResponse>> DailySalesSummery(
+  public ResponseEntity<ListResponseWrapper<DailySalesSummeryReportResponse>> dailySalesSummery(
     @Validated @RequestBody DailySalesSummeryReportRequest request) {
     log.info("DailySalesSummery creation start {}",request);
     List<DailySalesSummeryReportResponse> dailySalesSummeryReportResponses = new ArrayList<>();
@@ -49,7 +49,7 @@ public class ReportController {
   }
 
   @PostMapping("${app.endpoint.reportsDailySalesMixReport}")
-  public ResponseEntity<ListResponseWrapper<DailySalesMixReportResponseDto>> DailySalesMixReport(
+  public ResponseEntity<ListResponseWrapper<DailySalesMixReportResponseDto>> dailySalesMixReport(
     @Validated @RequestBody DailySalesMixReportRequest request) {
     log.info("DailySalesMixReport creation start {}",request);
     List<DailySalesMixReportResponseDto> dailySalesSummeryMixReportResponses = new ArrayList<>();
@@ -63,7 +63,7 @@ public class ReportController {
 
 
   @PostMapping("${app.endpoint.reportsDailySalesMixModifierReport}")
-  public ResponseEntity<ListResponseWrapper<DailySaleMixReportModifiersReportResponse>> DailySalesMixModifierReport(
+  public ResponseEntity<ListResponseWrapper<DailySaleMixReportModifiersReportResponse>> dailySalesMixModifierReport(
     @Validated @RequestBody ReportRequest request) {
     log.info("DailySalesMixModifierReport creation start {}",request);
     List<DailySaleMixReportModifiersReportResponse> dailySalesSummeryMixReportResponses = new ArrayList<>();
