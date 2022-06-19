@@ -564,128 +564,7 @@ public class ReceiptSupportedReportServiceImpl implements ReceiptSupportedReport
 
     }
 
-    @Override
-    public String parseThymeleafTemplateForConsolidatedDailySalesSummaryReport(Company company, String from, String to) {
 
-        List<ConsolidatedDailySalesSummaryReport> summaryReportDiningOptions = receiptRepository.findConsolidatedDailySalesSummaryReportDiningOptions(from, to, company.getId());
-
-        List<ConsolidatedDailySalesSummaryReport> summaryReportDelivery = receiptRepository.findConsolidatedDailySalesSummaryReportDelivery(from, to, company.getId());
-
-        List<ConsolidatedSalesSummaryReportDto> consolidatedSalesSummaryReportDtoDining = modelMapper.map(summaryReportDiningOptions, ConsolidatedSalesSummaryReportDto.class);
-        List<ConsolidatedSalesSummaryReportDto> consolidatedSalesSummaryReportDtoDelivery = modelMapper.map(summaryReportDelivery, ConsolidatedSalesSummaryReportDto.class);
-
-        List<ConsolidatedSalesSummaryReportDto> reportList = new ArrayList<>();
-        reportList.addAll(consolidatedSalesSummaryReportDtoDining);
-        reportList.addAll(consolidatedSalesSummaryReportDtoDelivery);
-
-        Map <String,List<ConsolidatedSummaryData>> consolidatedSummaryDataMap = new LinkedHashMap();
-
-        reportList.forEach(consolidatedSalesSummaryReportDto -> {
-           String store="";
-            log.info("store => {}", consolidatedSalesSummaryReportDto.getStore());
-            if("Island Wraps - Dine In".equals(consolidatedSalesSummaryReportDto.getStore()) ||
-              "Island Wraps - Delivery".equals(consolidatedSalesSummaryReportDto.getStore())) {
-                String[] storeArray = consolidatedSalesSummaryReportDto.getStore().split("-");
-                store = storeArray[0].trim();
-               log.info("store {}",storeArray[0].trim());
-            } else {
-                String[] storeArray = consolidatedSalesSummaryReportDto.getStore().split(":");
-                store = storeArray[0].trim();
-                log.info("store {}",storeArray[0].trim());
-            }
-            if(consolidatedSummaryDataMap.get(store)==null) {
-                List<ConsolidatedSummaryData> consolidatedSummaryDataList =  new ArrayList<>();
-                ConsolidatedSummaryData consolidatedSummaryData =  new ConsolidatedSummaryData();
-                consolidatedSummaryData.setOption(consolidatedSalesSummaryReportDto.getDiningOption()!=null?consolidatedSalesSummaryReportDto.getDiningOption():consolidatedSalesSummaryReportDto.getPayment());
-                consolidatedSummaryData.setValue(consolidatedSalesSummaryReportDto.getTotalMoney());
-                consolidatedSummaryData.setCount(consolidatedSalesSummaryReportDto.getCount());
-                consolidatedSummaryDataList.add(consolidatedSummaryData);
-                consolidatedSummaryDataMap.put(store, consolidatedSummaryDataList);
-            } else {
-                ConsolidatedSummaryData consolidatedSummaryData =  new ConsolidatedSummaryData();
-                consolidatedSummaryData.setOption(consolidatedSalesSummaryReportDto.getDiningOption()!=null?consolidatedSalesSummaryReportDto.getDiningOption():consolidatedSalesSummaryReportDto.getPayment());
-                consolidatedSummaryData.setValue(consolidatedSalesSummaryReportDto.getTotalMoney());
-                consolidatedSummaryData.setCount(consolidatedSalesSummaryReportDto.getCount());
-                consolidatedSummaryDataMap.get(store).add(consolidatedSummaryData);
-
-            }
-
-        });
-
-        List<ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData> list = new ArrayList<>();
-        ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData consolidatedDailySummaryResponse = null;
-        ConsolidatedDailySummaryResponse response = new ConsolidatedDailySummaryResponse();
-
-        double fullTotal=0.0;
-        int fullTotalCount = 0;
-        double total=0.0;
-        Integer totalCount=0;
-        for (Map.Entry<String, List<ConsolidatedSummaryData>> entry : consolidatedSummaryDataMap.entrySet()) {
-
-            System.out.println(entry.getKey() + "/" + entry.getValue());
-            String[] storeArray = entry.getKey().split("-");
-            System.out.println(storeArray[0]);
-
-            if(list.isEmpty()) {
-                consolidatedDailySummaryResponse =
-                  new ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData(storeArray[0].trim());
-            } else {
-                Optional<ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData> consolidatedDailySummaryResponseOptional =
-                  list.stream().filter(record -> record.getStore().equals(storeArray[0].trim())).findFirst();
-                if(consolidatedDailySummaryResponseOptional.isPresent()) {
-                    consolidatedDailySummaryResponse =
-                      consolidatedDailySummaryResponseOptional.get();
-                    list.remove(consolidatedDailySummaryResponse);
-                } else {
-                    consolidatedDailySummaryResponse =
-                      new ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData(storeArray[0]);
-                     total=0.0;
-                     totalCount=0;
-                }
-            }
-            
-            for (ConsolidatedSummaryData consolidatedSalesSummaryReportDto : entry.getValue()) {
-
-                if(consolidatedSalesSummaryReportDto.getOption() != null && consolidatedSalesSummaryReportDto.getOption().equals("Dine-in")) {
-                    consolidatedDailySummaryResponse.setDineIn(consolidatedSalesSummaryReportDto.getValue());
-                    consolidatedDailySummaryResponse.setDineInCount(consolidatedSalesSummaryReportDto.getCount());
-                    total += consolidatedSalesSummaryReportDto.getValue();
-                    totalCount += consolidatedSalesSummaryReportDto.getCount();
-                } else if( consolidatedSalesSummaryReportDto.getOption() != null && consolidatedSalesSummaryReportDto.getOption().equals("Takeaway")) {
-                    consolidatedDailySummaryResponse.setTakeAway(consolidatedSalesSummaryReportDto.getValue());
-                    consolidatedDailySummaryResponse.setTakeAwayCount(consolidatedSalesSummaryReportDto.getCount());
-                    total += consolidatedSalesSummaryReportDto.getValue();
-                    totalCount += consolidatedSalesSummaryReportDto.getCount();
-                } else if(consolidatedSalesSummaryReportDto.getOption().equals("PickMe")) {
-                    consolidatedDailySummaryResponse.setPickMe(consolidatedSalesSummaryReportDto.getValue());
-                    consolidatedDailySummaryResponse.setPickMeCount(consolidatedSalesSummaryReportDto.getCount());
-                    total += consolidatedSalesSummaryReportDto.getValue();
-                    totalCount += consolidatedSalesSummaryReportDto.getCount();
-                } else if(consolidatedSalesSummaryReportDto.getOption().equals("UberEats")) {
-                    consolidatedDailySummaryResponse.setUberEats(consolidatedSalesSummaryReportDto.getValue());
-                    consolidatedDailySummaryResponse.setUberEatsCount(consolidatedSalesSummaryReportDto.getCount());
-                    total += consolidatedSalesSummaryReportDto.getValue();
-                    totalCount += consolidatedSalesSummaryReportDto.getCount();
-                }
-            }
-            consolidatedDailySummaryResponse.setTotal(total);
-            consolidatedDailySummaryResponse.setTotalCount(totalCount);
-            fullTotal += total;
-            fullTotalCount += totalCount;
-            list.add(consolidatedDailySummaryResponse);
-        }
-        response.setFullTotal(fullTotal);
-        response.setFullTotalCount(fullTotalCount);
-        response.setConsolidatedSummaryList(list);
-
-        TemplateEngine templateEngine = getTemplateEngine();
-        Context context = new Context();
-        context.setVariable("consolidatedSummaryResponse", response);
-        context.setVariable("companyName", company.getName());
-        context.setVariable("date", LocalDate.now());
-        return templateEngine.process("consolidated_daily_sales_summary_report_template", context);
-
-    }
 
     @Override
     public String parseThymeleafTemplateForSettlementModeWiseReport(Company company, String from, String to) {
@@ -1018,6 +897,132 @@ public class ReceiptSupportedReportServiceImpl implements ReceiptSupportedReport
         });
 
         return modifierDtoMap;
+    }
+
+    @Override
+    public ConsolidatedDailySummaryResponse parseThymeleafTemplateForConsolidatedDailySalesSummaryReport(Company company, String from, String to) {
+
+        List<ConsolidatedDailySalesSummaryReport> summaryReportDiningOptions = receiptRepository.findConsolidatedDailySalesSummaryReportDiningOptions(from, to, company.getId());
+
+        List<ConsolidatedDailySalesSummaryReport> summaryReportDelivery = receiptRepository.findConsolidatedDailySalesSummaryReportDelivery(from, to, company.getId());
+
+        List<ConsolidatedSalesSummaryReportDto> consolidatedSalesSummaryReportDtoDining = modelMapper.map(summaryReportDiningOptions, ConsolidatedSalesSummaryReportDto.class);
+        List<ConsolidatedSalesSummaryReportDto> consolidatedSalesSummaryReportDtoDelivery = modelMapper.map(summaryReportDelivery, ConsolidatedSalesSummaryReportDto.class);
+
+        List<ConsolidatedSalesSummaryReportDto> reportList = new ArrayList<>();
+        reportList.addAll(consolidatedSalesSummaryReportDtoDining);
+        reportList.addAll(consolidatedSalesSummaryReportDtoDelivery);
+
+        Map <String,List<ConsolidatedSummaryData>> consolidatedSummaryDataMap = new LinkedHashMap();
+
+        reportList.forEach(consolidatedSalesSummaryReportDto -> {
+            String store="";
+            log.info("store => {}", consolidatedSalesSummaryReportDto.getStore());
+            if("Island Wraps - Dine In".equals(consolidatedSalesSummaryReportDto.getStore()) ||
+              "Island Wraps - Delivery".equals(consolidatedSalesSummaryReportDto.getStore())) {
+                String[] storeArray = consolidatedSalesSummaryReportDto.getStore().split("-");
+                store = storeArray[0].trim();
+                log.info("store {}",storeArray[0].trim());
+            } else {
+                String[] storeArray = consolidatedSalesSummaryReportDto.getStore().split(":");
+                store = storeArray[0].trim();
+                log.info("store {}",storeArray[0].trim());
+            }
+            if(consolidatedSummaryDataMap.get(store)==null) {
+                List<ConsolidatedSummaryData> consolidatedSummaryDataList =  new ArrayList<>();
+                ConsolidatedSummaryData consolidatedSummaryData =  new ConsolidatedSummaryData();
+                consolidatedSummaryData.setOption(consolidatedSalesSummaryReportDto.getDiningOption()!=null?consolidatedSalesSummaryReportDto.getDiningOption():consolidatedSalesSummaryReportDto.getPayment());
+                consolidatedSummaryData.setValue(consolidatedSalesSummaryReportDto.getTotalMoney());
+                consolidatedSummaryData.setCount(consolidatedSalesSummaryReportDto.getCount());
+                consolidatedSummaryDataList.add(consolidatedSummaryData);
+                consolidatedSummaryDataMap.put(store, consolidatedSummaryDataList);
+            } else {
+                ConsolidatedSummaryData consolidatedSummaryData =  new ConsolidatedSummaryData();
+                consolidatedSummaryData.setOption(consolidatedSalesSummaryReportDto.getDiningOption()!=null?consolidatedSalesSummaryReportDto.getDiningOption():consolidatedSalesSummaryReportDto.getPayment());
+                consolidatedSummaryData.setValue(consolidatedSalesSummaryReportDto.getTotalMoney());
+                consolidatedSummaryData.setCount(consolidatedSalesSummaryReportDto.getCount());
+                consolidatedSummaryDataMap.get(store).add(consolidatedSummaryData);
+
+            }
+
+        });
+
+        List<ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData> list = new ArrayList<>();
+        ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData consolidatedDailySummaryResponse = null;
+        ConsolidatedDailySummaryResponse response = new ConsolidatedDailySummaryResponse();
+
+        double fullTotal=0.0;
+        int fullTotalCount = 0;
+        double total=0.0;
+        Integer totalCount=0;
+        for (Map.Entry<String, List<ConsolidatedSummaryData>> entry : consolidatedSummaryDataMap.entrySet()) {
+
+            System.out.println(entry.getKey() + "/" + entry.getValue());
+            String[] storeArray = entry.getKey().split("-");
+            System.out.println(storeArray[0]);
+
+            if(list.isEmpty()) {
+                consolidatedDailySummaryResponse =
+                  new ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData(storeArray[0].trim());
+            } else {
+                Optional<ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData> consolidatedDailySummaryResponseOptional =
+                  list.stream().filter(record -> record.getStore().equals(storeArray[0].trim())).findFirst();
+                if(consolidatedDailySummaryResponseOptional.isPresent()) {
+                    consolidatedDailySummaryResponse =
+                      consolidatedDailySummaryResponseOptional.get();
+                    list.remove(consolidatedDailySummaryResponse);
+                } else {
+                    consolidatedDailySummaryResponse =
+                      new ConsolidatedDailySummaryResponse.ConsolidatedDailySummaryData(storeArray[0]);
+                    total=0.0;
+                    totalCount=0;
+                }
+            }
+
+            for (ConsolidatedSummaryData consolidatedSalesSummaryReportDto : entry.getValue()) {
+
+                if(consolidatedSalesSummaryReportDto.getOption() != null && consolidatedSalesSummaryReportDto.getOption().equals("Dine-in")) {
+                    consolidatedDailySummaryResponse.setDineIn(consolidatedSalesSummaryReportDto.getValue());
+                    consolidatedDailySummaryResponse.setDineInCount(consolidatedSalesSummaryReportDto.getCount());
+                    total += consolidatedSalesSummaryReportDto.getValue();
+                    totalCount += consolidatedSalesSummaryReportDto.getCount();
+                } else if( consolidatedSalesSummaryReportDto.getOption() != null && consolidatedSalesSummaryReportDto.getOption().equals("Takeaway")) {
+                    consolidatedDailySummaryResponse.setTakeAway(consolidatedSalesSummaryReportDto.getValue());
+                    consolidatedDailySummaryResponse.setTakeAwayCount(consolidatedSalesSummaryReportDto.getCount());
+                    total += consolidatedSalesSummaryReportDto.getValue();
+                    totalCount += consolidatedSalesSummaryReportDto.getCount();
+                } else if(consolidatedSalesSummaryReportDto.getOption().equals("PickMe")) {
+                    consolidatedDailySummaryResponse.setPickMe(consolidatedSalesSummaryReportDto.getValue());
+                    consolidatedDailySummaryResponse.setPickMeCount(consolidatedSalesSummaryReportDto.getCount());
+                    total += consolidatedSalesSummaryReportDto.getValue();
+                    totalCount += consolidatedSalesSummaryReportDto.getCount();
+                } else if(consolidatedSalesSummaryReportDto.getOption().equals("UberEats")) {
+                    consolidatedDailySummaryResponse.setUberEats(consolidatedSalesSummaryReportDto.getValue());
+                    consolidatedDailySummaryResponse.setUberEatsCount(consolidatedSalesSummaryReportDto.getCount());
+                    total += consolidatedSalesSummaryReportDto.getValue();
+                    totalCount += consolidatedSalesSummaryReportDto.getCount();
+                }
+            }
+            consolidatedDailySummaryResponse.setTotal(total);
+            consolidatedDailySummaryResponse.setTotalCount(totalCount);
+            fullTotal += total;
+            fullTotalCount += totalCount;
+            list.add(consolidatedDailySummaryResponse);
+        }
+        response.setFullTotal(fullTotal);
+        response.setFullTotalCount(fullTotalCount);
+        response.setConsolidatedSummaryList(list);
+
+        response.setCompanyName(company.getName());
+        response.setDate(LocalDate.now());
+
+        /*TemplateEngine templateEngine = getTemplateEngine();
+        Context context = new Context();
+        context.setVariable("consolidatedSummaryResponse", response);
+        context.setVariable("companyName", company.getName());
+        context.setVariable("date", LocalDate.now());*/
+        return response;
+
     }
 }
 
