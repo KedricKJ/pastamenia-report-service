@@ -37,6 +37,7 @@ public class DailySalesSummeryReportResponse {
 
   int totalQuantityDiningType;
   double totalGrossSaleDiningType;
+  double totalVoidRefundDiningType;
   double totalDiscountDiningType;
   double grossTotalDiningType;
   double totalTaxDiningType;

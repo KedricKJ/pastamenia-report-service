@@ -103,6 +103,9 @@ public class ReceiptSupportedReportServiceImpl implements ReceiptSupportedReport
 
         int totalQuantityDiningType = dataForSaleSummaryReportDiningTypeDto.stream().mapToInt(i-> i.getQuantity()).sum();
         double totalGrossSaleDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getGrossSale()).sum(),2);
+
+        double totalVoidRefundDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getRefunds()).sum(),2);
+
         double totalDiscountDiningType =    Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getTotalDiscount()).sum(),2);
         double grossTotalDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getGrossTotal()).sum(),2);
         double totalTaxDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getTax()).sum(),2);
@@ -183,6 +186,7 @@ public class ReceiptSupportedReportServiceImpl implements ReceiptSupportedReport
 
         response.setTotalQuantityDiningType(totalQuantityDiningType);
         response.setTotalGrossSaleDiningType(totalGrossSaleDiningType);
+        response.setTotalVoidRefundDiningType(totalVoidRefundDiningType);
         response.setTotalDiscountDiningType(totalDiscountDiningType);
         response.setGrossTotalDiningType(grossTotalDiningType);
         response.setTotalTaxDiningType(totalTaxDiningType);
