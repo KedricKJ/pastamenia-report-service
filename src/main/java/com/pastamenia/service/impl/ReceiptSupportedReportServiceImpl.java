@@ -102,6 +102,7 @@ public class ReceiptSupportedReportServiceImpl implements ReceiptSupportedReport
         dataForSaleSummaryReportDiningTypeDto.forEach(dto ->{ dto.setSale(Formatter.round(((dto.getNetTotal()/sumDineIn)*100),2));});
 
         int totalQuantityDiningType = dataForSaleSummaryReportDiningTypeDto.stream().mapToInt(i-> i.getQuantity()).sum();
+
         double totalGrossSaleDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getGrossSale()).sum(),2);
 
         double totalVoidRefundDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getRefunds()).sum(),2);
@@ -109,7 +110,9 @@ public class ReceiptSupportedReportServiceImpl implements ReceiptSupportedReport
         double totalDiscountDiningType =    Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getTotalDiscount()).sum(),2);
         double grossTotalDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getGrossTotal()).sum(),2);
         double totalTaxDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getTax()).sum(),2);
+
         double totalServiceChargeDiningType =   Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getServiceCharge()).sum(),2);
+
         double totalNetTotalDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getNetTotal()).sum(),2);
         double totalSaleDiningType =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getSale()).sum(),2);
 
@@ -125,14 +128,16 @@ public class ReceiptSupportedReportServiceImpl implements ReceiptSupportedReport
         double sumCategory = dataForSaleSummaryReportCategoryDto.stream().mapToDouble(val -> val.getNetTotal()).sum();
         dataForSaleSummaryReportCategoryDto.forEach(dto1 ->{ dto1.setSale(Formatter.round(((dto1.getNetTotal()/sumCategory)*100),2));});
 
-        int totalQuantityCategory = dataForSaleSummaryReportDiningTypeDto.stream().mapToInt(i-> i.getQuantity()).sum();
-        double totalGrossSaleCategory =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getGrossSale()).sum(),2);
-        double totalDiscountCategory =    Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getTotalDiscount()).sum(),2);
-        double grossTotalCategory =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getGrossTotal()).sum(),2);
-        double totalTaxCategory =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getTax()).sum(),2);
-        double totalServiceChargeCategory =   Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getServiceCharge()).sum(),2);
-        double totalNetTotalCategory =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getNetTotal()).sum(),2);
-        double totalSaleCategory =  Formatter.round(dataForSaleSummaryReportDiningTypeDto.stream().mapToDouble(i-> i.getSale()).sum(),2);
+        int totalQuantityCategory = dataForSaleSummaryReportCategoryDto.stream().mapToInt(i-> i.getQuantity()).sum();
+        double totalGrossSaleCategory =  Formatter.round(dataForSaleSummaryReportCategoryDto.stream().mapToDouble(i-> i.getGrossSale()).sum(),2);
+        double totalDiscountCategory =    Formatter.round(dataForSaleSummaryReportCategoryDto.stream().mapToDouble(i-> i.getTotalDiscount()).sum(),2);
+        double grossTotalCategory =  Formatter.round(dataForSaleSummaryReportCategoryDto.stream().mapToDouble(i-> i.getGrossTotal()).sum(),2);
+        double totalTaxCategory =  Formatter.round(dataForSaleSummaryReportCategoryDto.stream().mapToDouble(i-> i.getTax()).sum(),2);
+
+        double totalServiceChargeCategory =   Formatter.round(dataForSaleSummaryReportCategoryDto.stream().mapToDouble(i-> i.getServiceCharge()).sum(),2);
+
+        double totalNetTotalCategory =  Formatter.round(dataForSaleSummaryReportCategoryDto.stream().mapToDouble(i-> i.getNetTotal()).sum(),2);
+        double totalSaleCategory =  Formatter.round(dataForSaleSummaryReportCategoryDto.stream().mapToDouble(i-> i.getSale()).sum(),2);
 
 
         //PaymentMode
